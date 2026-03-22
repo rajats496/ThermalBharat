@@ -25,7 +25,7 @@ const jobMultipliers = {
   farmer: 1.5
 }
 
-function Sidebar({ cities, cityRiskScores, nearestCenterByCity }) {
+function Sidebar({ cities, cityRiskScores, nearestCenterByCity, className = '' }) {
   const [cityName, setCityName] = useState(cities[0]?.name || '')
   const [ageGroup, setAgeGroup] = useState('age18to45')
   const [health, setHealth] = useState('none')
@@ -53,7 +53,7 @@ function Sidebar({ cities, cityRiskScores, nearestCenterByCity }) {
   }
 
   return (
-    <aside className="sidebar" aria-label="Sidebar">
+    <aside className={`sidebar ${className}`} aria-label="Sidebar">
       <h2>🧑 Personal Risk Calculator</h2>
       <p className="sidebar-subtitle">व्यक्तिगत जोखिम कैलकुलेटर</p>
 

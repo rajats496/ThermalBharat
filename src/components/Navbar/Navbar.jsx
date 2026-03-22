@@ -94,6 +94,7 @@ export default function Navbar({
   }
 
   return (
+    <>
     <header className="nb-root">
 
       {/* ── LEFT: Brand ─────────────────────────────── */}
@@ -269,9 +270,10 @@ export default function Navbar({
           transform: menuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none',
         }} />
       </button>
+    </header>
 
-      {/* ── Mobile overlay (plain divs, reliable z-index) ── */}
-      <AnimatePresence>
+    {/* ── Mobile overlay — OUTSIDE header so it's not clipped ── */}
+    <AnimatePresence>
         {menuOpen && (
           <>
             {/* Dark backdrop */}
@@ -363,7 +365,7 @@ export default function Navbar({
             </motion.div>
           </>
         )}
-      </AnimatePresence>
-    </header>
+    </AnimatePresence>
+    </>
   )
 }

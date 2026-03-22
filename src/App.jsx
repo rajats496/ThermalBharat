@@ -66,6 +66,7 @@ function AppInner() {
   const [showClusters,      setShowClusters]     = useState(false)
   const [showPredictions,   setShowPredictions]  = useState(false)
   const [showMethodology,   setShowMethodology]  = useState(false)
+  const [sidebarOpen,       setSidebarOpen]      = useState(false)
 
   const handleSetMapMode = (mode) => {
     setMapMode(mode)
@@ -307,10 +308,28 @@ function AppInner() {
         {/* Main map page */}
         <Route path="/" element={
           <main className="layout-main" style={{ display: 'flex', height: 'calc(100vh - 56px)', minHeight: 0 }}>
+            {/* Mobile floating filter/sidebar button */}
+            <button
+              className="mobile-only mobile-sidebar-btn"
+              onClick={() => setSidebarOpen(v => !v)}
+              aria-label="Toggle sidebar"
+            >
+              {sidebarOpen ? '✕' : '☰'}
+            </button>
+
+            {/* Sidebar backdrop (mobile only) */}
+            {sidebarOpen && (
+              <div
+                className="mobile-only mobile-sidebar-backdrop"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
+
             <Sidebar
               cities={cities}
               cityRiskScores={cityRiskScores}
               nearestCenterByCity={nearestCenterByCity}
+              className={sidebarOpen ? 'mobile-open' : ''}
             />
             <section className="map-section" aria-label="India heat map" style={{ height: 'calc(100vh - 56px)', minHeight: 400, position: 'relative', flex: '1 1 0', overflow: 'hidden' }}>
               {isLoadingCities && (
