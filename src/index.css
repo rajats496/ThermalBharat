@@ -3901,3 +3901,21 @@ html, body, #root {
   overflow: hidden !important;
   flex: 1 !important;
 }
+
+/*  Fix detail panel overlapping map  */
+.detail-panel, aside.detail-panel,
+.detail-skeleton {
+  position: relative !important;
+  z-index: 10 !important;
+  background: var(--bg-card, #131929) !important;
+}
+
+/* map-container must not overflow beyond map-section */
+.map-section {
+  z-index: 1;
+}
+
+/* Ensure map stays behind panels */
+.map-container, .map-wrapper {
+  z-index: 1;
+}
