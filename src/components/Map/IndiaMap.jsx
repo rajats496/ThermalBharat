@@ -184,7 +184,25 @@ function IndiaMap({
 }) {
   const showNDVI = (mapMode === 'trees' || mapMode === 'combined') && !!selectedCity
 
-  // Group cluster data by cluster rank for hulls + legend
+  // ── Fix 4+5+6+7: refs and error states ───────────────────────
+  const mapRef = useRef(null)
+  const [tileError, setTileError] = useState(false)
+  const [mapError,  setMapError]  = useState(false)   // eslint-disable-line no-unused-vars
+
+  // invalidateSize on mount — fixes black map on Firefox/Safari
+  useEffect(() => {
+    const t = setTimeout(() => { mapRef.current?.invalidateSize?.() }, 300)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Re-invalidate on window resize (handles orientation + sidebar changes)
+  useEffect(() => {
+    const onResize = () => mapRef.current?.invalidateSize?.()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+
   const clusterGroups = []
   if (showClusters && clusterData?.length) {
     const groups = {}
