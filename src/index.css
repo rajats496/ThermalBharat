@@ -4135,3 +4135,58 @@ html, body, #root {
     padding: 20px 16px 80px !important;
   }
 }
+
+/*  Map mode toggle mobile responsive  */
+@media (max-width: 768px) {
+  .map-mode-toggle {
+    top: 8px !important;
+    right: 8px !important;
+    left: 8px !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    justify-content: center !important;
+  }
+
+  .map-mode-btn {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.5rem !important;
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    min-width: 0 !important;
+  }
+
+  /* Map notice (cluster loading) */
+  .map-notice {
+    font-size: 11px !important;
+    top: auto !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    text-align: center !important;
+  }
+
+  /* NDVI legend */
+  .ndvi-legend-overlay {
+    bottom: 8px !important;
+    left: 8px !important;
+    right: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    font-size: 11px !important;
+  }
+
+  /* Cluster legend */
+  .cluster-legend {
+    bottom: 8px !important;
+    right: 8px !important;
+    max-width: 200px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .map-mode-btn {
+    font-size: 0.65rem !important;
+    padding: 0.25rem 0.4rem !important;
+  }
+}
