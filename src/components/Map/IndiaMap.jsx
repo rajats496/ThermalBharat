@@ -223,22 +223,21 @@ function IndiaMap({
 }) {
   const showNDVI = (mapMode === 'trees' || mapMode === 'combined') && !!selectedCity
 
-  // ── Fix 4+5+6+7: refs and error states ───────────────────────
-  const mapRef = useRef(null)
   const [tileError, setTileError] = useState(false)
-  const [mapError,  setMapError]  = useState(false)   // eslint-disable-line no-unused-vars
+  const [mapError]  = useState(false)
 
-  // invalidateSize on mount — fixes black map on Firefox/Safari
+  // ── DELAYED MOUNT: render wrapper FIRST, mount MapContainer AFTER ──
+  // This guarantees Leaflet reads the actual container size (785x617)
+  // instead of 0x0 during React's first render pass.
+  const [showMap, setShowMap] = useState(false)
   useEffect(() => {
-    const t = setTimeout(() => { mapRef.current?.invalidateSize?.() }, 300)
-    return () => clearTimeout(t)
-  }, [])
-
-  // Re-invalidate on window resize (handles orientation + sidebar changes)
-  useEffect(() => {
-    const onResize = () => mapRef.current?.invalidateSize?.()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    // requestAnimationFrame ensures the DOM has been painted
+    const raf = requestAnimationFrame(() => {
+      // additional delay for CSS transitions on slow machines
+      const t = setTimeout(() => setShowMap(true), 50)
+      return () => clearTimeout(t)
+    })
+    return () => cancelAnimationFrame(raf)
   }, [])
 
 
@@ -342,14 +341,21 @@ function IndiaMap({
         </div>
       ) : (
         <div className="map-wrapper">
+          {!showMap ? (
+            <div style={{
+              height: '100%', width: '100%', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              background: '#080b14', color: '#8895b0',
+            }}>
+              <span className="spinner" style={{ marginRight: 8 }} />
+              Loading map...
+            </div>
+          ) : (
           <MapContainer
             center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
             zoom={INDIA_ZOOM}
             zoomControl={true}
             style={{ height: '100%', width: '100%' }}
-            whenReady={(mapInstance) => {
-              setTimeout(() => mapInstance.target.invalidateSize(), 200)
-            }}
           >
             <MapResizer />
 
@@ -417,6 +423,7 @@ function IndiaMap({
 
             {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
           </MapContainer>
+          )}
         </div>
       )}
     </div>
