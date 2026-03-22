@@ -3780,3 +3780,59 @@ p, h1, h2, h3, span, div {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* 
+   MAP HEIGHT FIX — resolves "map invisible until DevTools opens"
+   Root cause: Leaflet needs an EXPLICIT height on its container.
+   "height: 100%" fails when parent has no height set.
+    */
+
+/* layout-main must fill the viewport below the navbar */
+.layout-main {
+  display: flex;
+  flex: 1 1 0;
+  height: calc(100dvh - 56px);   /* dvh = accounts for mobile browser chrome */
+  min-height: 400px;
+  overflow: hidden;
+}
+
+/* map-section fills all remaining space beside sidebar */
+.map-section {
+  flex: 1 1 0;
+  position: relative;
+  height: 100%;                  /* inherits from layout-main which now has height */
+  min-height: 400px;
+  overflow: hidden;
+}
+
+/* Leaflet container itself MUST have explicit height — never auto/0 */
+.map-section .leaflet-container,
+.map-section .map-container,
+.map-section > div {
+  height: 100% !important;
+  min-height: 400px !important;
+  width: 100% !important;
+}
+
+/* app-shell must be 100dvh so layout-main can fill */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Mobile override */
+@media (max-width: 768px) {
+  .layout-main {
+    height: calc(100dvh - 56px - 64px);  /* navbar + bottom nav */
+    flex-direction: column;
+    overflow: auto;
+  }
+  .map-section {
+    height: calc(100dvh - 56px - 64px);
+    min-height: 350px;
+    flex-shrink: 0;
+  }
+}

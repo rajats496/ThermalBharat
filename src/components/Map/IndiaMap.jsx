@@ -189,13 +189,18 @@ function IndiaMap({
   const [tileError, setTileError] = useState(false)
   const [mapError,  setMapError]  = useState(false)   // eslint-disable-line no-unused-vars
 
-  // invalidateSize on mount — fixes black map on Firefox/Safari
+  // Multi-shot invalidateSize — ensures map renders on ANY machine speed.
+  // One shot at 100ms, 300ms, 800ms, 1500ms covers slow CSS transitions.
   useEffect(() => {
-    const t = setTimeout(() => { mapRef.current?.invalidateSize?.() }, 300)
-    return () => clearTimeout(t)
+    const inv = () => mapRef.current?.invalidateSize?.()
+    const t1 = setTimeout(inv, 100)
+    const t2 = setTimeout(inv, 300)
+    const t3 = setTimeout(inv, 800)
+    const t4 = setTimeout(inv, 1500)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
   }, [])
 
-  // Re-invalidate on window resize (handles orientation + sidebar changes)
+  // Re-invalidate on window resize (orientation, sidebar, DevTools)
   useEffect(() => {
     const onResize = () => mapRef.current?.invalidateSize?.()
     window.addEventListener('resize', onResize)
