@@ -6,21 +6,40 @@ import HeatOverlay from './HeatOverlay'
 import NDVIOverlay, { NDVILegend } from './NDVIOverlay'
 import { convexHull } from '../../utils/mlModels'
 
-// ── Fix 3+5: MapResizer — uses useMap() directly (most reliable) ──
-// Called from INSIDE MapContainer so it always has the map instance.
+// ── MapResizer — triple-layered approach to guarantee map renders ──
+// 1. ResizeObserver: fires when container actually gets painted with a size
+// 2. window.load: fires when all resources (CSS, fonts, images) are loaded
+// 3. Interval: keeps calling invalidateSize for 3 seconds as safety net
+// 4. window.resize: handles orientation change / sidebar toggle / DevTools
 function MapResizer() {
   const map = useMap()
   useEffect(() => {
-    // Multi-shot to handle slow machines / CSS transitions
-    const t1 = setTimeout(() => map.invalidateSize(), 100)
-    const t2 = setTimeout(() => map.invalidateSize(), 300)
-    const t3 = setTimeout(() => map.invalidateSize(), 600)
-    // Fix 5: also invalidate on every window resize
-    const onResize = () => map.invalidateSize()
-    window.addEventListener('resize', onResize)
+    const inv = () => { try { map.invalidateSize() } catch(e) {} }
+
+    // 1. ResizeObserver — watches the actual map container DOM element
+    let ro
+    const container = map.getContainer()
+    if (container && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => inv())
+      ro.observe(container)
+    }
+
+    // 2. window load — CSS/fonts may not be done yet on initial render
+    window.addEventListener('load', inv)
+
+    // 3. Safety-net interval: every 200ms for 3 seconds
+    const interval = setInterval(inv, 200)
+    const stopInterval = setTimeout(() => clearInterval(interval), 3000)
+
+    // 4. Window resize
+    window.addEventListener('resize', inv)
+
     return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
-      window.removeEventListener('resize', onResize)
+      ro?.disconnect()
+      window.removeEventListener('load', inv)
+      window.removeEventListener('resize', inv)
+      clearInterval(interval)
+      clearTimeout(stopInterval)
     }
   }, [map])
   return null
