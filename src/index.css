@@ -3834,3 +3834,9 @@ p, h1, h2, h3, span, div {
   .map-section { height: calc(100svh - 56px - 64px); min-height: 300px; flex-shrink: 0; }
   .map-wrapper { position: relative; height: 100%; min-height: 300px; }
 }
+
+/* Fix retina tile sizing */
+.leaflet-retina .leaflet-tile {
+  width: 256px !important;
+  height: 256px !important;
+}

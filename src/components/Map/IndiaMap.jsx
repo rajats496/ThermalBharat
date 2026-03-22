@@ -334,15 +334,29 @@ function IndiaMap({
           >
             <MapResizer />
 
-            <TileLayer
-              attribution='&copy; <a href="https://carto.com/">CartoDB</a> | OpenStreetMap'
-              url={tileError
-                ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-              }
-              maxZoom={19}
-              eventHandlers={{ tileerror: () => setTileError(true) }}
-            />
+            {tileError ? (
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="OpenStreetMap"
+                detectRetina={false}
+                maxZoom={19}
+                minZoom={3}
+              />
+            ) : (
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+                attribution="CartoDB"
+                detectRetina={false}
+                maxZoom={19}
+                minZoom={3}
+                eventHandlers={{
+                  tileerror: () => {
+                    console.log('CartoDB tiles failed, switching to OSM')
+                    setTileError(true)
+                  }
+                }}
+              />
+            )}
 
             {cities.map((city) => {
               if (showClusters && clusterMap[city.name]) {
