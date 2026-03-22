@@ -52,6 +52,15 @@ export default function Navbar({
     return () => clearInterval(interval)
   }, [])
 
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false) }, [location.pathname])
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
+
   // All cities sorted A-Z, filter by query when typed
   const filteredCities = [...cities]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -219,62 +228,130 @@ export default function Navbar({
         </div>
       )}
 
-      {/* ── Mobile hamburger ─────────────────────────── */}
+      {/* ── Mobile hamburger (inline styles = always visible) ── */}
       <button
         type="button"
-        className={`nb-hamburger ${menuOpen ? 'nb-hamburger--open' : ''}`}
         aria-label="Toggle menu"
         aria-expanded={menuOpen}
         onClick={() => setMenuOpen(v => !v)}
+        style={{
+          display: 'none', // shown via CSS on mobile
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '5px',
+          padding: '8px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 2000,
+          position: 'relative',
+          minHeight: 44,
+          minWidth: 44,
+        }}
+        className="nb-hamburger-btn"
       >
-        <span /><span /><span />
+        <span style={{
+          display: 'block', width: 22, height: 2,
+          background: 'white', borderRadius: 2,
+          transition: 'transform 0.3s ease, opacity 0.3s ease',
+          transform: menuOpen ? 'rotate(45deg) translateY(7px)' : 'none',
+        }} />
+        <span style={{
+          display: 'block', width: 22, height: 2,
+          background: 'white', borderRadius: 2,
+          transition: 'opacity 0.3s ease',
+          opacity: menuOpen ? 0 : 1,
+        }} />
+        <span style={{
+          display: 'block', width: 22, height: 2,
+          background: 'white', borderRadius: 2,
+          transition: 'transform 0.3s ease',
+          transform: menuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none',
+        }} />
       </button>
 
-      {/* ── Mobile overlay + drawer (framer-motion) ───── */}
+      {/* ── Mobile overlay (plain divs, reliable z-index) ── */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div
-            className="nb-mobile-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            onClick={() => setMenuOpen(false)}
-          >
-            <motion.nav
-              className="nb-mobile-drawer"
-              initial={{ opacity: 0, y: -20 }}
+          <>
+            {/* Dark backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                position: 'fixed', inset: 0,
+                background: 'rgba(0,0,0,0.75)',
+                zIndex: 1998,
+              }}
+            />
+            {/* Menu panel slides down */}
+            <motion.div
+              key="panel"
+              initial={{ opacity: 0, y: -24 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -24 }}
               transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-              onClick={e => e.stopPropagation()}
-              aria-label="Mobile navigation"
+              style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0,
+                background: '#0d1117',
+                zIndex: 1999,
+                padding: '70px 24px 28px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
+              }}
             >
-              <div className="nb-mobile-brand">
-                🌡️ <strong>ThermalBharat</strong>
+              {/* Brand row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <span style={{ fontSize: 20, fontWeight: 800, color: '#fff' }}>🌡️ ThermalBharat</span>
                 <button
                   type="button"
-                  className="nb-mobile-close"
                   onClick={() => setMenuOpen(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff', width: 34, height: 34, borderRadius: '50%',
+                    cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
                 >✕</button>
               </div>
-              {NAV_LINKS.map(link => (
-                <button
-                  key={link.path}
-                  type="button"
-                  className={`nb-mobile-link ${location.pathname === link.path ? 'nb-mobile-link--active' : ''}`}
-                  onClick={() => handleNavClick(link)}
-                >
-                  <span style={{ fontSize: 22 }}>{link.icon}</span>
-                  <span>
-                    {link.label}
-                    <span className="hindi-text" style={{ opacity: 0.55, fontSize: 13, marginLeft: 8 }}>— {link.labelHindi}</span>
-                  </span>
-                </button>
-              ))}
-              {/* City select in mobile */}
+
+              {/* Nav links */}
+              {NAV_LINKS.map(link => {
+                const isActive = location.pathname === link.path
+                return (
+                  <button
+                    key={link.path}
+                    type="button"
+                    onClick={() => handleNavClick(link)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 16,
+                      width: '100%', background: 'none', border: 'none',
+                      borderBottom: '1px solid rgba(255,255,255,0.07)',
+                      color: isActive ? '#ff4444' : '#c8d3e8',
+                      fontSize: 18, fontWeight: isActive ? 700 : 500,
+                      padding: '16px 0', cursor: 'pointer', textAlign: 'left',
+                      minHeight: 56,
+                    }}
+                  >
+                    <span style={{ fontSize: 22, lineHeight: 1 }}>{link.icon}</span>
+                    <span>{link.label}</span>
+                    {isActive && <span style={{ marginLeft: 'auto', color: '#ff4444', fontSize: 14 }}>●</span>}
+                  </button>
+                )
+              })}
+
+              {/* City selector */}
               <select
-                className="nb-mobile-city-select"
+                style={{
+                  marginTop: 20, width: '100%',
+                  background: '#131929', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#f0f4ff', borderRadius: 12,
+                  padding: '13px 16px', fontSize: 16, cursor: 'pointer',
+                }}
                 value={selectedCityName}
                 onChange={e => { onCityChange(e.target.value); setMenuOpen(false) }}
               >
@@ -283,8 +360,8 @@ export default function Navbar({
                   <option key={c.name} value={c.name}>{c.name} ({c.nameHindi})</option>
                 ))}
               </select>
-            </motion.nav>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
