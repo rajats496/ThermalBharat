@@ -306,13 +306,13 @@ function AppInner() {
 
         {/* Main map page */}
         <Route path="/" element={
-          <main className="layout-main">
+          <main className="layout-main" style={{ display: 'flex', flex: '1 1 0', minHeight: 0, height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
             <Sidebar
               cities={cities}
               cityRiskScores={cityRiskScores}
               nearestCenterByCity={nearestCenterByCity}
             />
-            <section className="map-section" aria-label="India heat map">
+            <section className="map-section" aria-label="India heat map" style={{ height: 'calc(100vh - 56px)', minHeight: 400, position: 'relative', flex: '1 1 0', overflow: 'hidden' }}>
               {isLoadingCities && (
                 <div className="map-loading">
                   <span className="spinner" aria-hidden="true" />

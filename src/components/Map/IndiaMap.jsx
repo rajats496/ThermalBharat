@@ -252,7 +252,7 @@ function IndiaMap({
   ]
 
   return (
-    <div className="map-container">
+    <div className="map-container" style={{ height: '100%', width: '100%', position: 'relative' }}>
       {/* View mode toggle */}
       <div className="map-mode-toggle">
         {modes.map((m) => (
