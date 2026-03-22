@@ -3780,3 +3780,57 @@ p, h1, h2, h3, span, div {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* 
+   FIX 4 — Leaflet container guaranteed height
+   Resolves "black map until DevTools opens" on all browsers
+    */
+
+/* App shell: full-viewport flex column */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Main content row: sidebar + map */
+.layout-main {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;           /* critical for flex children with height:100% */
+  overflow: hidden;
+}
+
+/* Map section fills remaining space */
+.map-section {
+  flex: 1 1 0;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Fix 2: map-wrapper has explicit pixel height */
+.map-wrapper {
+  position: absolute;
+  inset: 0;                /* top:0 right:0 bottom:0 left:0 */
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+/* Leaflet container always fills its parent */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  background: #080b14 !important;   /* dark bg so tiles feel instant */
+  min-height: 400px !important;
+}
+
+@media (max-width: 768px) {
+  .app-shell  { height: 100svh; }
+  .layout-main { flex-direction: column; overflow: auto; }
+  .map-section { height: calc(100svh - 56px - 64px); min-height: 300px; flex-shrink: 0; }
+  .map-wrapper { position: relative; height: 100%; min-height: 300px; }
+}

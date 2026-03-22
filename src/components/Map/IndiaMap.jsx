@@ -6,6 +6,26 @@ import HeatOverlay from './HeatOverlay'
 import NDVIOverlay, { NDVILegend } from './NDVIOverlay'
 import { convexHull } from '../../utils/mlModels'
 
+// ── Fix 3+5: MapResizer — uses useMap() directly (most reliable) ──
+// Called from INSIDE MapContainer so it always has the map instance.
+function MapResizer() {
+  const map = useMap()
+  useEffect(() => {
+    // Multi-shot to handle slow machines / CSS transitions
+    const t1 = setTimeout(() => map.invalidateSize(), 100)
+    const t2 = setTimeout(() => map.invalidateSize(), 300)
+    const t3 = setTimeout(() => map.invalidateSize(), 600)
+    // Fix 5: also invalidate on every window resize
+    const onResize = () => map.invalidateSize()
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [map])
+  return null
+}
+
 function MapFlyToCity({ selectedCity }) {
   const map = useMap()
 
@@ -302,69 +322,69 @@ function IndiaMap({
           >🔄 Refresh Page</button>
         </div>
       ) : (
-        <MapContainer
-          ref={mapRef}
-          center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
-          zoom={INDIA_ZOOM}
-          zoomControl={true}
-          style={{ height: '100%', width: '100%' }}
-          whenReady={() => setTimeout(() => mapRef.current?.invalidateSize?.(), 150)}
-        >
-          {/* Fix 7: CartoDB dark tiles, fallback to OSM on tile error */}
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CartoDB</a> | OpenStreetMap'
-            url={tileError
-              ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-              : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-            }
-            maxZoom={19}
-            eventHandlers={{ tileerror: () => setTileError(true) }}
-          />
+        <div className="map-wrapper">
+          <MapContainer
+            center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
+            zoom={INDIA_ZOOM}
+            zoomControl={true}
+            style={{ height: '100%', width: '100%' }}
+            whenReady={(mapInstance) => {
+              setTimeout(() => mapInstance.target.invalidateSize(), 200)
+            }}
+          >
+            <MapResizer />
 
-          {/* City markers — cluster-colored when in zone mode */}
-          {cities.map((city) => {
-            if (showClusters && clusterMap[city.name]) {
-              const cd = clusterMap[city.name]
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/">CartoDB</a> | OpenStreetMap'
+              url={tileError
+                ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+              }
+              maxZoom={19}
+              eventHandlers={{ tileerror: () => setTileError(true) }}
+            />
+
+            {cities.map((city) => {
+              if (showClusters && clusterMap[city.name]) {
+                const cd = clusterMap[city.name]
+                return (
+                  <ClusterMarker
+                    key={city.name}
+                    cityData={{ ...city, ...cd }}
+                    onCityClick={onCityClick}
+                  />
+                )
+              }
               return (
-                <ClusterMarker
+                <CityMarker
                   key={city.name}
-                  cityData={{ ...city, ...cd }}
+                  city={city}
+                  cityData={cityWeatherData[city.name]}
                   onCityClick={onCityClick}
+                  isSelected={selectedCity?.name === city.name}
                 />
               )
-            }
-            return (
-              <CityMarker
-                key={city.name}
-                city={city}
-                cityData={cityWeatherData[city.name]}
-                onCityClick={onCityClick}
-                isSelected={selectedCity?.name === city.name}
+            })}
+
+            {showClusters && clusterGroups.map(g => (
+              <ClusterHull
+                key={g.clusterRank}
+                clusterCities={g.cities}
+                clusterName={g.clusterName}
+                clusterNameHindi={g.clusterNameHindi}
+                color={g.color}
               />
-            )
-          })}
+            ))}
 
-          {/* Cluster hull polygons */}
-          {showClusters && clusterGroups.map(g => (
-            <ClusterHull
-              key={g.clusterRank}
-              clusterCities={g.cities}
-              clusterName={g.clusterName}
-              clusterNameHindi={g.clusterNameHindi}
-              color={g.color}
-            />
-          ))}
+            <MapFlyToCity selectedCity={selectedCity} />
 
-          <MapFlyToCity selectedCity={selectedCity} />
+            {!showClusters && showHeatOverlay && selectedCity && (
+              <HeatOverlay city={selectedCity} visible={true} onHide={onHideHeatOverlay} />
+            )}
 
-          {/* UHI Heat Overlay */}
-          {!showClusters && showHeatOverlay && selectedCity && (
-            <HeatOverlay city={selectedCity} visible={true} onHide={onHideHeatOverlay} />
-          )}
-
-          {/* NDVI / Combined Overlay */}
-          {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
-        </MapContainer>
+            {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
+          </MapContainer>
+        </div>
       )}
     </div>
   )
