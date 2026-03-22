@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════
+   ThermalBharat — Design Tokens v2 (Premium)
+   ═══════════════════════════════════════════ */
+:root {
+  /* ── Backgrounds ──────────────────────── */
+  --bg-base:     #080b14;
+  --bg-surface:  #0d1117;
+  --bg-card:     #131929;
+  --bg-elevated: #1a2235;
+  --bg-overlay:  rgba(13,17,23,0.92);
+
+  /* ── Brand ────────────────────────────── */
+  --brand-primary:  #ff4444;
+  --brand-dark:     #cc1a1a;
+  --brand-glow:     rgba(255,68,68,0.25);
+  --brand-gradient: linear-gradient(135deg, #ff4444 0%, #ff6b35 100%);
+
+  /* ── Secondary — teal ─────────────────── */
+  --teal:      #00d4aa;
+  --teal-dark: #00a884;
+  --teal-glow: rgba(0,212,170,0.2);
+
+  /* ── Heat scale ───────────────────────── */
+  --heat-safe:    #00d4aa;
+  --heat-caution: #ffd166;
+  --heat-warning: #f4a261;
+  --heat-danger:  #e63946;
+  --heat-extreme: #9d0208;
+
+  /* ── Text hierarchy ───────────────────── */
+  --text-100: #f0f4ff;
+  --text-200: #c8d3e8;
+  --text-300: #8895b0;
+  --text-400: #4a5568;
+
+  /* ── Borders ──────────────────────────── */
+  --border-subtle:  rgba(255,255,255,0.05);
+  --border-default: rgba(255,255,255,0.09);
+  --border-strong:  rgba(255,255,255,0.15);
+
+  /* ── Gradients ────────────────────────── */
+  --gradient-card:   linear-gradient(145deg, rgba(26,34,53,0.9), rgba(13,17,23,0.95));
+  --gradient-navbar: linear-gradient(180deg, rgba(8,11,20,0.98), rgba(8,11,20,0.90));
+  --gradient-hero-hot:  linear-gradient(135deg, #3d0000 0%, #1a0505 40%, #080b14 100%);
+  --gradient-hero-warm: linear-gradient(135deg, #2d1500 0%, #150a00 40%, #080b14 100%);
+  --gradient-hero-cool: linear-gradient(135deg, #001a2d 0%, #000d17 40%, #080b14 100%);
+
+  /* ── Shadows ──────────────────────────── */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.6);
+
+  /* ── Radius ───────────────────────────── */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  /* ── Animation ────────────────────────── */
+  --ease-out: cubic-bezier(0.4,0,0.2,1);
+  --dur-fast: 0.18s;
+  --dur-mid:  0.3s;
+}

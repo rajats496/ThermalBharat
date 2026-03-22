@@ -1,0 +1,225 @@
+/* ═══════════════════════════════════════════
+   ThermalBharat — Component Styles (Premium)
+   ═══════════════════════════════════════════ */
+
+/* ── Glass card (upgraded) ─────────────── */
+.glass-card {
+  background: var(--gradient-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              box-shadow   var(--dur-fast) var(--ease-out),
+              transform    var(--dur-fast) var(--ease-out);
+}
+.glass-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+  transform: translateY(-2px);
+}
+.glass-card-accent-red {
+  border-top: 2px solid var(--brand-primary) !important;
+  box-shadow: var(--shadow-md),
+    0 -1px 0 rgba(255,68,68,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.glass-card-accent-teal {
+  border-top: 2px solid var(--teal) !important;
+  box-shadow: var(--shadow-md),
+    0 -1px 0 rgba(0,212,170,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+/* legacy aliases */
+.glass-card-red   { border-color: rgba(255,68,68,0.2) !important; }
+.glass-card-green { border-color: rgba(0,212,170,0.2) !important; }
+
+/* ── Badges ─────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.badge-safe {
+  background: rgba(0,212,170,0.12);
+  border: 1px solid rgba(0,212,170,0.28);
+  color: var(--teal);
+}
+.badge-caution {
+  background: rgba(255,209,102,0.12);
+  border: 1px solid rgba(255,209,102,0.28);
+  color: #ffd166;
+}
+.badge-warning {
+  background: rgba(244,162,97,0.12);
+  border: 1px solid rgba(244,162,97,0.28);
+  color: var(--heat-warning);
+}
+.badge-danger {
+  background: rgba(230,57,70,0.12);
+  border: 1px solid rgba(230,57,70,0.28);
+  color: var(--heat-danger);
+}
+.badge-extreme {
+  background: rgba(157,2,8,0.18);
+  border: 1px solid rgba(157,2,8,0.45);
+  color: #ff5555;
+  animation: pulse-danger 1.5s infinite;
+}
+
+/* ── Temperature display ────────────────── */
+.temp-display-hot {
+  background: linear-gradient(135deg, #ff7070, #ff4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(255,68,68,0.4));
+}
+.temp-display-warm {
+  background: linear-gradient(135deg, #ffd166, #f4a261);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(244,162,97,0.35));
+}
+.temp-display-cool {
+  background: linear-gradient(135deg, #00d4aa, #0099cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(0,212,170,0.35));
+}
+
+/* ── Buttons ─────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #ff4444 0%, #cc1a1a 100%);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 10px 20px;
+  color: #fff;
+  font-weight: 650;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out),
+              background  var(--dur-fast) var(--ease-out);
+  box-shadow: 0 2px 12px rgba(255,68,68,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(255,68,68,0.45);
+  background: linear-gradient(135deg, #ff5555 0%, #dd2222 100%);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.btn-primary:active::after { opacity: 1; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 10px 20px;
+  color: var(--text-200);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+}
+.btn-ghost:hover {
+  border-color: var(--border-strong);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-100);
+}
+
+.btn-teal {
+  background: linear-gradient(135deg, #00d4aa 0%, #00a884 100%);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 10px 20px;
+  color: #080b14;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--dur-fast), box-shadow var(--dur-fast);
+  box-shadow: 0 2px 12px rgba(0,212,170,0.28);
+}
+.btn-teal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0,212,170,0.4);
+}
+
+/* ── Custom scrollbar ───────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Data values — monospace ────────────── */
+.data-value {
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+  font-weight: 500;
+}
+
+/* ── Safe hours timeline ─────────────────── */
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+.hour-block {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.hour-block.current::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* ── Chart tooltip (premium dark) ──────── */
+.recharts-tooltip-premium {
+  background: rgba(13,17,23,0.97) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+
+/* ── Gradient text — brand ──────────────── */
+.brand-gradient-text {
+  background: linear-gradient(135deg, #ff7070, #ff4444, #cc1a1a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* ── Navbar active glow ─────────────────── */
+.nb-link--active {
+  color: var(--brand-primary) !important;
+  text-shadow: 0 0 20px rgba(255,68,68,0.45);
+}

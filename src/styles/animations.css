@@ -1,0 +1,187 @@
+/* ═══════════════════════════════════════════
+   ThermalBharat — Animations & Motion
+   ═══════════════════════════════════════════ */
+
+/* ── Glassmorphism card ────────────────── */
+.glass-card {
+  background: rgba(26, 29, 46, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.glass-card-red {
+  border-color: rgba(255,68,68,0.2) !important;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    0 0 20px rgba(255,68,68,0.08) !important;
+}
+.glass-card-green {
+  border-color: rgba(0,204,136,0.2) !important;
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    0 0 20px rgba(0,204,136,0.08) !important;
+}
+
+/* ── Pulse badges ──────────────────────── */
+@keyframes pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.6); }
+  50%       { box-shadow: 0 0 0 10px rgba(255,68,68,0); }
+}
+@keyframes pulse-warning {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,136,0,0.6); }
+  50%       { box-shadow: 0 0 0 10px rgba(255,136,0,0); }
+}
+@keyframes pulse-yellow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,204,0,0.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(255,204,0,0); }
+}
+.badge-extreme { animation: pulse-danger  1.5s infinite; }
+.badge-high    { animation: pulse-warning 2.0s infinite; }
+.badge-moderate{ animation: pulse-yellow  2.5s infinite; }
+
+/* ── Heatwave ticker ───────────────────── */
+@keyframes ticker {
+  0%   { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+.ticker-wrap {
+  overflow: hidden;
+  background: linear-gradient(90deg, #6a0000, #cc2222, #6a0000);
+  padding: 6px 0;
+  position: relative;
+  z-index: 1000;
+}
+.ticker-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 28s linear infinite;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ── City marker pulse ring ────────────── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.city-marker-pulse-div {
+  position: relative;
+  border-radius: 50%;
+}
+.city-marker-pulse-div::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: pulse-ring 1.6s ease-out infinite;
+}
+
+/* ── Navbar underline ──────────────────── */
+.nb-nav-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.nb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: #ff4444;
+  transition: width 0.22s ease;
+  border-radius: 2px;
+}
+.nb-nav-link:hover::after,
+.nb-nav-link.active::after { width: 100%; }
+
+/* ── Button animations ─────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #ff4444, #cc2222);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255,68,68,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.btn-primary:active::after { opacity: 1; }
+
+/* ── Navbar glass ──────────────────────── */
+.nb-root {
+  background: rgba(15, 17, 23, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35) !important;
+}
+
+/* ── Spinner (shared) ──────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #ff4444;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* ── Fade-in-up (used by scroll reveal) ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  animation: fadeInUp 0.4s var(--ease-out, ease) both;
+}
+
+/*  IndiaMap city marker pulse (already used by city-marker-pulse class)  */
+@keyframes city-pulse {
+  0%   { stroke-opacity: 0.9; stroke-width: 2; }
+  50%  { stroke-opacity: 0.3; stroke-width: 8; }
+  100% { stroke-opacity: 0.9; stroke-width: 2; }
+}
+.city-marker-pulse path,
+.city-marker-pulse circle {
+  animation: city-pulse 1.6s ease-in-out infinite;
+}
+/* Leaflet SVG path pulse for extreme heat markers */
+.leaflet-interactive.city-marker-pulse {
+  animation: city-pulse 1.6s ease-in-out infinite;
+}
+
+/*  HeatwaveBanner enhanced gradient  */
+.hwave-root {
+  background: linear-gradient(90deg, #5a0000 0%, #cc1111 40%, #ff4444 60%, #cc1111 80%, #5a0000 100%) !important;
+}
