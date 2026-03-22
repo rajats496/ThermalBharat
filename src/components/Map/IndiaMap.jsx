@@ -264,62 +264,90 @@ function IndiaMap({
         </div>
       )}
 
-      <MapContainer
-        center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
-        zoom={INDIA_ZOOM}
-        zoomControl={true}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          maxZoom={19}
-        />
+      {/* Fix 6: error UI if map fails to mount */}
+      {mapError ? (
+        <div style={{
+          height: '100%', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          background: '#0d1117', color: 'white', gap: 16,
+        }}>
+          <span style={{ fontSize: 48 }}>🗺️</span>
+          <h3 style={{ margin: 0 }}>Map Loading Failed</h3>
+          <p style={{ color: '#8895b0', margin: 0 }}>Please refresh the page</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              background: '#ff4444', border: 'none', color: 'white',
+              padding: '10px 24px', borderRadius: 8, cursor: 'pointer',
+              fontSize: 15, fontWeight: 600,
+            }}
+          >🔄 Refresh Page</button>
+        </div>
+      ) : (
+        <MapContainer
+          ref={mapRef}
+          center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
+          zoom={INDIA_ZOOM}
+          zoomControl={true}
+          style={{ height: '100%', width: '100%' }}
+          whenReady={() => setTimeout(() => mapRef.current?.invalidateSize?.(), 150)}
+        >
+          {/* Fix 7: CartoDB dark tiles, fallback to OSM on tile error */}
+          <TileLayer
+            attribution='&copy; <a href="https://carto.com/">CartoDB</a> | OpenStreetMap'
+            url={tileError
+              ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            }
+            maxZoom={19}
+            eventHandlers={{ tileerror: () => setTileError(true) }}
+          />
 
-        {/* City markers — cluster-colored when in zone mode */}
-        {cities.map((city) => {
-          if (showClusters && clusterMap[city.name]) {
-            const cd = clusterMap[city.name]
+          {/* City markers — cluster-colored when in zone mode */}
+          {cities.map((city) => {
+            if (showClusters && clusterMap[city.name]) {
+              const cd = clusterMap[city.name]
+              return (
+                <ClusterMarker
+                  key={city.name}
+                  cityData={{ ...city, ...cd }}
+                  onCityClick={onCityClick}
+                />
+              )
+            }
             return (
-              <ClusterMarker
+              <CityMarker
                 key={city.name}
-                cityData={{ ...city, ...cd }}
+                city={city}
+                cityData={cityWeatherData[city.name]}
                 onCityClick={onCityClick}
+                isSelected={selectedCity?.name === city.name}
               />
             )
-          }
-          return (
-            <CityMarker
-              key={city.name}
-              city={city}
-              cityData={cityWeatherData[city.name]}
-              onCityClick={onCityClick}
-              isSelected={selectedCity?.name === city.name}
+          })}
+
+          {/* Cluster hull polygons */}
+          {showClusters && clusterGroups.map(g => (
+            <ClusterHull
+              key={g.clusterRank}
+              clusterCities={g.cities}
+              clusterName={g.clusterName}
+              clusterNameHindi={g.clusterNameHindi}
+              color={g.color}
             />
-          )
-        })}
+          ))}
 
-        {/* Cluster hull polygons */}
-        {showClusters && clusterGroups.map(g => (
-          <ClusterHull
-            key={g.clusterRank}
-            clusterCities={g.cities}
-            clusterName={g.clusterName}
-            clusterNameHindi={g.clusterNameHindi}
-            color={g.color}
-          />
-        ))}
+          <MapFlyToCity selectedCity={selectedCity} />
 
-        <MapFlyToCity selectedCity={selectedCity} />
+          {/* UHI Heat Overlay */}
+          {!showClusters && showHeatOverlay && selectedCity && (
+            <HeatOverlay city={selectedCity} visible={true} onHide={onHideHeatOverlay} />
+          )}
 
-        {/* UHI Heat Overlay — only when explicitly shown via satellite button */}
-        {!showClusters && showHeatOverlay && selectedCity && (
-          <HeatOverlay city={selectedCity} visible={true} onHide={onHideHeatOverlay} />
-        )}
-
-        {/* NDVI / Combined Overlay */}
-        {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
-      </MapContainer>
+          {/* NDVI / Combined Overlay */}
+          {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
+        </MapContainer>
+      )}
     </div>
   )
 }
