@@ -3840,3 +3840,44 @@ p, h1, h2, h3, span, div {
   width: 256px !important;
   height: 256px !important;
 }
+
+/* 
+   SCROLL FIX — remove overflow:hidden from non-map pages
+   + force map visible on main page
+    */
+
+/* App shell should NOT block scroll */
+.app-shell {
+  overflow: visible !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh;
+}
+
+/* Body + root must allow scroll */
+html, body, #root {
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh;
+}
+
+/* layout-main on map page keeps overflow:hidden (via inline style) */
+/* But ALL other pages must scroll */
+.layout-main {
+  overflow: visible !important;
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
+/* map-section stays overflow hidden (map page only, has inline style) */
+
+/* City detail and other pages MUST scroll */
+.cdp-root, .cp-root, .pp-root, .mp-root,
+.about-page, main:not(.layout-main) {
+  overflow: visible !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}

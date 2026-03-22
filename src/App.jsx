@@ -306,7 +306,7 @@ function AppInner() {
 
         {/* Main map page */}
         <Route path="/" element={
-          <main className="layout-main" style={{ display: 'flex', flex: '1 1 0', minHeight: 0, height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
+          <main className="layout-main" style={{ display: 'flex', height: 'calc(100vh - 56px)', minHeight: 0 }}>
             <Sidebar
               cities={cities}
               cityRiskScores={cityRiskScores}
