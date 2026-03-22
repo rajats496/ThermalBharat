@@ -3881,3 +3881,23 @@ html, body, #root {
   height: auto !important;
   max-height: none !important;
 }
+
+/*  Leaflet container absolute fill  */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  background: #080b14 !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+.map-wrapper {
+  position: relative !important;
+  height: calc(100vh - 56px) !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  flex: 1 !important;
+}

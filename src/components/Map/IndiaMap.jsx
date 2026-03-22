@@ -6,41 +6,60 @@ import HeatOverlay from './HeatOverlay'
 import NDVIOverlay, { NDVILegend } from './NDVIOverlay'
 import { convexHull } from '../../utils/mlModels'
 
-// ── MapResizer — triple-layered approach to guarantee map renders ──
-// 1. ResizeObserver: fires when container actually gets painted with a size
-// 2. window.load: fires when all resources (CSS, fonts, images) are loaded
-// 3. Interval: keeps calling invalidateSize for 3 seconds as safety net
-// 4. window.resize: handles orientation change / sidebar toggle / DevTools
-function MapResizer() {
+// ── MapInitializer — aggressive invalidateSize + tile redraw ──
+function MapInitializer() {
   const map = useMap()
   useEffect(() => {
-    const inv = () => { try { map.invalidateSize() } catch(e) {} }
+    const times = [0, 100, 200, 300, 500, 800, 1000, 1500, 2000]
+    const timers = times.map(t =>
+      setTimeout(() => {
+        map.invalidateSize(true)
+        map.eachLayer(layer => {
+          if (layer.redraw) layer.redraw()
+        })
+      }, t)
+    )
 
-    // 1. ResizeObserver — watches the actual map container DOM element
+    const onLoad = () => map.invalidateSize(true)
+    window.addEventListener('load', onLoad)
+
+    const onScroll = () => map.invalidateSize(true)
+    window.addEventListener('scroll', onScroll, { once: true })
+
+    const onResize = () => map.invalidateSize(true)
+    window.addEventListener('resize', onResize)
+
     let ro
     const container = map.getContainer()
     if (container && typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(() => inv())
+      ro = new ResizeObserver(() => map.invalidateSize(true))
       ro.observe(container)
     }
 
-    // 2. window load — CSS/fonts may not be done yet on initial render
-    window.addEventListener('load', inv)
-
-    // 3. Safety-net interval: every 200ms for 3 seconds
-    const interval = setInterval(inv, 200)
-    const stopInterval = setTimeout(() => clearInterval(interval), 3000)
-
-    // 4. Window resize
-    window.addEventListener('resize', inv)
-
     return () => {
+      timers.forEach(clearTimeout)
+      window.removeEventListener('load', onLoad)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
       ro?.disconnect()
-      window.removeEventListener('load', inv)
-      window.removeEventListener('resize', inv)
-      clearInterval(interval)
-      clearTimeout(stopInterval)
     }
+  }, [map])
+  return null
+}
+
+// ── MapZoomFix — tiny zoom bump forces complete tile redraw ──
+function MapZoomFix() {
+  const map = useMap()
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const z = map.getZoom()
+      map.setZoom(z + 0.01, { animate: false })
+      setTimeout(() => {
+        map.setZoom(z, { animate: false })
+        map.invalidateSize(true)
+      }, 100)
+    }, 500)
+    return () => clearTimeout(t)
   }, [map])
   return null
 }
@@ -355,9 +374,10 @@ function IndiaMap({
             center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
             zoom={INDIA_ZOOM}
             zoomControl={true}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', background: '#080b14' }}
           >
-            <MapResizer />
+            <MapInitializer />
+            <MapZoomFix />
 
             {tileError ? (
               <TileLayer
@@ -366,6 +386,8 @@ function IndiaMap({
                 detectRetina={false}
                 maxZoom={19}
                 minZoom={3}
+                tileSize={256}
+                zoomOffset={0}
               />
             ) : (
               <TileLayer
@@ -374,6 +396,8 @@ function IndiaMap({
                 detectRetina={false}
                 maxZoom={19}
                 minZoom={3}
+                tileSize={256}
+                zoomOffset={0}
                 eventHandlers={{
                   tileerror: () => {
                     console.log('CartoDB tiles failed, switching to OSM')
