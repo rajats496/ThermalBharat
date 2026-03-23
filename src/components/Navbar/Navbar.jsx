@@ -275,14 +275,14 @@ export default function Navbar({
       {location.pathname === '/' && <div className="nb-mobile-search">
         <form className="nb-mobile-search-box" action="" onSubmit={e => {
           e.preventDefault()
-          if (searchQuery.trim()) {
+          const q = searchQuery.trim()
+          if (q) {
             const match = filteredCities[0]
-            if (match) {
-              onCityChange(match.name)
-              setSearchQuery('')
-              setShowDropdown(false)
-              navigate(`/city/${encodeURIComponent(match.name)}`)
-            }
+            const cityName = match ? match.name : q
+            onCityChange(cityName)
+            setSearchQuery('')
+            setShowDropdown(false)
+            navigate(`/city/${encodeURIComponent(cityName)}`)
           }
         }}>
           <span className="nb-search-icon">🔍</span>
