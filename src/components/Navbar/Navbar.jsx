@@ -284,12 +284,10 @@ export default function Navbar({
             // Known city — just navigate
             onCityChange(match.name)
           } else {
-            // Unknown city — fetch data first, wait for React state, then navigate
+            // Unknown city — addCustomCity fetches data AND navigates
             try {
               await onAddCustomCity?.({ cityName: q, stateName: '' })
-            } catch { /* ignore errors */ }
-            // Small delay so React commits the state update before navigation
-            setTimeout(() => navigate(`/city/${encodeURIComponent(q)}`), 300)
+            } catch { /* city not found — stays on home */ }
           }
         }}>
           <span className="nb-search-icon">🔍</span>

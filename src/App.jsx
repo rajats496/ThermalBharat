@@ -229,7 +229,11 @@ function AppInner() {
     const existing = cities.find(c => {
       return norm(c.name) === norm(name) && (!stateName || norm(c.state) === norm(stateName))
     })
-    if (existing) { setSelectedCityName(existing.name); return }
+    if (existing) {
+      setSelectedCityName(existing.name)
+      navigate(`/city/${encodeURIComponent(existing.name)}`)
+      return existing.name
+    }
     try {
       const geocoded    = await geocodeCityInIndia(name, stateName)
       const displayName = `${geocoded.name}, ${geocoded.state}`
@@ -246,6 +250,8 @@ function AppInner() {
         humidity: bundle.current.humidity, aqi_value: bundle.airQuality?.aqi_value ?? 90,
       })
       setCityWeatherData(prev => ({ ...prev, [customCity.name]: { ...bundle, combinedRisk } }))
+      navigate(`/city/${encodeURIComponent(customCity.name)}`)
+      return customCity.name
     } catch (error) {
       throw new Error(error?.message || 'City not found in India. Please try another name.')
     }
