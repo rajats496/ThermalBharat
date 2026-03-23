@@ -245,14 +245,27 @@ function IndiaMap({
   const [tileError, setTileError] = useState(false)
   const [mapError]  = useState(false)
 
+  // ── JS-computed pixel height — reliable at any browser zoom level ──
+  // CSS calc(100vh) fails at sub-100% zoom on some browsers/machines.
+  // We read actual pixel dimensions from the DOM and set inline style.
+  const [mapHeight, setMapHeight] = useState(window.innerHeight - 56)
+  useEffect(() => {
+    const computeHeight = () => {
+      const navEl = document.querySelector('.nb-root')
+      const navH  = navEl ? navEl.offsetHeight : 56
+      const bnEl  = document.querySelector('.bottom-nav')
+      const bnH   = (bnEl && bnEl.offsetHeight) ? bnEl.offsetHeight : 0
+      setMapHeight(window.innerHeight - navH - bnH)
+    }
+    computeHeight()
+    window.addEventListener('resize', computeHeight)
+    return () => window.removeEventListener('resize', computeHeight)
+  }, [])
+
   // ── DELAYED MOUNT: render wrapper FIRST, mount MapContainer AFTER ──
-  // This guarantees Leaflet reads the actual container size (785x617)
-  // instead of 0x0 during React's first render pass.
   const [showMap, setShowMap] = useState(false)
   useEffect(() => {
-    // requestAnimationFrame ensures the DOM has been painted
     const raf = requestAnimationFrame(() => {
-      // additional delay for CSS transitions on slow machines
       const t = setTimeout(() => setShowMap(true), 50)
       return () => clearTimeout(t)
     })
@@ -359,7 +372,10 @@ function IndiaMap({
           >🔄 Refresh Page</button>
         </div>
       ) : (
-        <div className="map-wrapper">
+        <div
+          className="map-wrapper"
+          style={{ height: mapHeight, minHeight: 300, width: '100%', position: 'relative' }}
+        >
           {!showMap ? (
             <div style={{
               height: '100%', width: '100%', display: 'flex',
