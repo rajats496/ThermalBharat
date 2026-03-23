@@ -297,18 +297,24 @@ export default function CityDetailPage({ cities, cityDetailsData, cityWeatherDat
 
   const cigarettes = Math.round((air?.aqi_value ?? 0) / 22)
 
-  // Redirect to home if city not found
-  useEffect(() => {
-    if (cities?.length > 0 && !city) navigate('/', { replace: true })
-  }, [city, cities, navigate])
-
   if (!city || !detailData) {
     return (
-      <div className="cdp-skeleton-page">
-        <div className="skeleton-line wide" style={{ height: 120, borderRadius: 16, marginBottom: 24 }} />
-        <div style={{ display: 'flex', gap: 16 }}>
-          {[1, 2, 3].map(i => <div key={i} className="skeleton-card" style={{ flex: 1, height: 240 }} />)}
-        </div>
+      <div className="cdp-root" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 }}>
+        <span style={{ fontSize: 64 }}>🏙️</span>
+        <h2 style={{ color: '#fff', margin: 0 }}>{cityName}</h2>
+        <p style={{ color: '#8895b0', margin: 0, textAlign: 'center', maxWidth: 400 }}>
+          This city is not available in our database yet. We currently cover 30 major Indian cities.
+          <br /><span className="hindi-text">यह शहर अभी हमारे डेटाबेस में उपलब्ध नहीं है।</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          style={{
+            marginTop: 12, background: 'rgba(255,68,68,0.15)', border: '1px solid rgba(255,68,68,0.3)',
+            color: '#ff6666', padding: '12px 28px', borderRadius: 10, cursor: 'pointer',
+            fontSize: 15, fontWeight: 600,
+          }}
+        >← Back to Map</button>
       </div>
     )
   }
