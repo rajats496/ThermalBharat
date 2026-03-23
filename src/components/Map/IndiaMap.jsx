@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import L from 'leaflet'
 import { CircleMarker, MapContainer, Polygon, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import { CITY_ZOOM, HEAT_LEVELS, INDIA_CENTER, INDIA_ZOOM } from '../../utils/constants'
 import { getHeatLevel, getRiskBand, getRiskLabel } from '../../utils/calculations'
@@ -491,14 +490,7 @@ function IndiaMap({
             center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
             zoom={INDIA_ZOOM}
             zoomControl={true}
-            preferCanvas={true}
-            renderer={L.canvas()}
-            style={{
-              height: '100%',
-              width: '100%',
-              background: '#080b14',
-              transform: 'translateZ(0)',
-            }}
+            style={{ height: '100%', width: '100%', background: '#080b14' }}
           >
             <MapInitializer />
             <MapZoomFix />
