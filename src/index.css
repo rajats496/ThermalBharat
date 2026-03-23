@@ -3898,6 +3898,8 @@ html, body, #root {
   min-width: 300px !important;
   max-width: 300px !important;
   flex: 0 0 300px !important;
+  overflow: hidden !important;
+  overflow-y: auto !important;
 }
 
 /* Map section: fill ALL remaining space */
@@ -3906,16 +3908,20 @@ html, body, #root {
   min-width: 0 !important;
   min-height: 0 !important;
   height: 100% !important;
+  padding: 0 !important;
   position: relative !important;
   overflow: hidden !important;
 }
 
-/* Map container fills section */
+/* Map container fills section — remove base styles that interfere */
 .app-shell--map-page .map-container {
   position: absolute !important;
   inset: 0 !important;
   height: 100% !important;
   width: 100% !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
 }
 
 /* Map wrapper fills container */
