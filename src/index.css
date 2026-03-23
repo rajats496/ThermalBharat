@@ -4047,6 +4047,25 @@ html, body, #root {
 .nb-mobile-search-input::placeholder {
   color: #6b7a94;
 }
+.nb-mobile-search-go {
+  background: rgba(255,68,68,0.2);
+  border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666;
+  border-radius: 8px;
+  width: 32px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.2s;
+}
+.nb-mobile-search-go:active {
+  background: rgba(255,68,68,0.4);
+}
 .nb-mobile-dropdown {
   position: absolute;
   top: 100%;

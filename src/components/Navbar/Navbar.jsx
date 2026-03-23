@@ -273,7 +273,7 @@ export default function Navbar({
 
       {/* ── Mobile search (right of hamburger, mobile only, home page only) ── */}
       {location.pathname === '/' && <div className="nb-mobile-search">
-        <form className="nb-mobile-search-box" onSubmit={e => {
+        <form className="nb-mobile-search-box" action="" onSubmit={e => {
           e.preventDefault()
           if (searchQuery.trim()) {
             const match = filteredCities[0]
@@ -289,6 +289,7 @@ export default function Navbar({
           <input
             className="nb-mobile-search-input"
             type="search"
+            enterKeyHint="go"
             placeholder="Search city..."
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setShowDropdown(true) }}
@@ -296,6 +297,7 @@ export default function Navbar({
             onBlur={() => setTimeout(() => setShowDropdown(false), 400)}
             aria-label="Search city"
           />
+          <button type="submit" className="nb-mobile-search-go" aria-label="Go">➜</button>
         </form>
         {showDropdown && searchQuery.trim() && (
           <div className="nb-mobile-dropdown">
