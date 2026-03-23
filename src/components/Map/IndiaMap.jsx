@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import L from 'leaflet'
 import { CircleMarker, MapContainer, Polygon, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import { CITY_ZOOM, HEAT_LEVELS, INDIA_CENTER, INDIA_ZOOM } from '../../utils/constants'
 import { getHeatLevel, getRiskBand, getRiskLabel } from '../../utils/calculations'
@@ -48,74 +47,19 @@ function MapInitializer() {
   return null
 }
 
-// ── ForceRepaint — forces complete browser repaint ──
-function ForceRepaint() {
+// ── MapZoomFix — tiny zoom bump forces complete tile redraw ──
+function MapZoomFix() {
   const map = useMap()
   useEffect(() => {
-    // Method 1: Zoom trick
-    // Forces complete browser repaint
-    const zoomFix = setTimeout(() => {
-      const zoom = map.getZoom()
-
-      // Zoom in slightly
-      map.setZoom(zoom + 0.1, { animate: false })
-
-      // Immediately zoom back
+    const t = setTimeout(() => {
+      const z = map.getZoom()
+      map.setZoom(z + 0.01, { animate: false })
       setTimeout(() => {
-        map.setZoom(zoom, { animate: false })
-      }, 50)
-    }, 300)
-
-    // Method 2: Pan trick
-    // Tiny pan forces tile redraw
-    const panFix = setTimeout(() => {
-      const center = map.getCenter()
-      void center
-      map.panBy([1, 0], { animate: false })
-      setTimeout(() => {
-        map.panBy([-1, 0], { animate: false })
-      }, 50)
-    }, 600)
-
-    // Method 3: CSS repaint trick
-    const cssFix = setTimeout(() => {
-      const container = map.getContainer()
-
-      // Toggle CSS property
-      // forces GPU repaint
-      container.style.transform = 'translateZ(0)'
-      container.style.willChange = 'transform'
-
-      // Force reflow
-      void container.offsetHeight
-
-      map.invalidateSize(true)
-
-      // Redraw all layers
-      map.eachLayer((layer) => {
-        if (layer?.redraw) layer.redraw()
-      })
-    }, 800)
-
-    // Method 4: requestAnimationFrame
-    // Waits for next paint cycle
-    const rafFix = setTimeout(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          map.invalidateSize(true)
-          map.eachLayer((layer) => {
-            if (layer?.redraw) layer.redraw()
-          })
-        })
-      })
-    }, 1000)
-
-    return () => {
-      clearTimeout(zoomFix)
-      clearTimeout(panFix)
-      clearTimeout(cssFix)
-      clearTimeout(rafFix)
-    }
+        map.setZoom(z, { animate: false })
+        map.invalidateSize(true)
+      }, 100)
+    }, 500)
+    return () => clearTimeout(t)
   }, [map])
   return null
 }
@@ -296,7 +240,6 @@ function IndiaMap({
   mapMode, setMapMode,
   clusterData, showClusters, setShowClusters,
 }) {
-  const mapRef = useRef(null)
   const showNDVI = (mapMode === 'trees' || mapMode === 'combined') && !!selectedCity
 
   const [tileError, setTileError] = useState(false)
@@ -327,40 +270,6 @@ function IndiaMap({
       return () => clearTimeout(t)
     })
     return () => cancelAnimationFrame(raf)
-  }, [])
-
-  // Fix 5: trigger repaint on window fully loaded
-  useEffect(() => {
-    const onWindowLoad = () => {
-      setTimeout(() => {
-        const maxAttempts = 10
-        let attempt = 0
-
-        const tick = () => {
-          const map = mapRef.current
-          if (map) {
-            map.invalidateSize(true)
-            map.eachLayer((l) => {
-              if (l?.redraw) l.redraw()
-            })
-            return
-          }
-
-          attempt += 1
-          if (attempt <= maxAttempts) setTimeout(tick, 100)
-        }
-
-        tick()
-      }, 200)
-    }
-
-    if (document.readyState === 'complete') {
-      onWindowLoad()
-    } else {
-      window.addEventListener('load', onWindowLoad)
-    }
-
-    return () => window.removeEventListener('load', onWindowLoad)
   }, [])
 
 
@@ -481,46 +390,30 @@ function IndiaMap({
             center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
             zoom={INDIA_ZOOM}
             zoomControl={true}
-            preferCanvas={true}
-            renderer={L.canvas()}
-            whenCreated={(map) => { mapRef.current = map }}
-            style={{
-              height: '100%',
-              width: '100%',
-              background: '#080b14',
-              transform: 'translateZ(0)',
-            }}
+            style={{ height: '100%', width: '100%', background: '#080b14' }}
           >
             <MapInitializer />
-            <ForceRepaint />
+            <MapZoomFix />
 
             {tileError ? (
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution="OpenStreetMap"
                 detectRetina={false}
-                keepBuffer={4}
-                updateWhenIdle={false}
-                updateWhenZooming={false}
                 maxZoom={19}
                 minZoom={3}
                 tileSize={256}
                 zoomOffset={0}
-                crossOrigin={true}
               />
             ) : (
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
                 attribution="CartoDB"
                 detectRetina={false}
-                keepBuffer={4}
-                updateWhenIdle={false}
-                updateWhenZooming={false}
                 maxZoom={19}
                 minZoom={3}
                 tileSize={256}
                 zoomOffset={0}
-                crossOrigin={true}
                 eventHandlers={{
                   tileerror: () => {
                     console.log('CartoDB tiles failed, switching to OSM')
