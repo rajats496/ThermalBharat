@@ -52,15 +52,115 @@ function MapZoomFix() {
   const map = useMap()
   useEffect(() => {
     const t = setTimeout(() => {
-      const z = map.getZoom()
-      map.setZoom(z + 0.01, { animate: false })
-      setTimeout(() => {
-        map.setZoom(z, { animate: false })
-        map.invalidateSize(true)
-      }, 100)
+      map.invalidateSize(true)
+      map.eachLayer(layer => {
+        if (layer?.redraw) layer.redraw()
+      })
+
+      // Next paint cycle (some browsers composite late at specific zoom/DPRs)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          map.invalidateSize(true)
+          map.eachLayer(layer => {
+            if (layer?.redraw) layer.redraw()
+          })
+        })
+      })
     }, 500)
     return () => clearTimeout(t)
   }, [map])
+  return null
+}
+
+// ── TilesPaintFix — wait for tile images, then force repaint ──
+// This avoids changing zoom/pan (which can interfere with city flyTo).
+function TilesPaintFix() {
+  const map = useMap()
+
+  useEffect(() => {
+    let cancelled = false
+    const container = map.getContainer()
+    let lastDpr = window.devicePixelRatio
+
+    const maxAttempts = 200 // ~20s @ 100ms
+    let attempt = 0
+
+    const tick = () => {
+      if (cancelled) return
+      attempt += 1
+
+      const tiles = container.querySelectorAll('.leaflet-tile')
+      if (!tiles || tiles.length === 0) {
+        if (attempt < maxAttempts) setTimeout(tick, 100)
+        return
+      }
+
+      // `.leaflet-tile` is an <img>. We only trigger after enough images are loaded.
+      let loaded = 0
+      for (let i = 0; i < tiles.length; i += 1) {
+        const img = tiles[i]
+        if (img && img.complete && (img.naturalWidth > 0 || img.width > 0)) loaded += 1
+      }
+
+      // At least the initial viewport tiles should be present.
+      const readyThreshold = Math.min(12, tiles.length)
+      if (loaded >= readyThreshold || attempt >= maxAttempts) {
+        // Method: CSS repaint trick + map invalidation
+        const prevTransform = container.style.transform
+
+        container.style.willChange = 'transform'
+        container.style.transform = 'translateZ(0)'
+
+        // Force reflow
+        void container.offsetHeight
+
+        map.invalidateSize(true)
+        map.eachLayer(layer => {
+          if (layer?.redraw) layer.redraw()
+        })
+
+        // Run again on the next paint cycle for browsers that delay compositing.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            map.invalidateSize(true)
+            map.eachLayer(layer => {
+              if (layer?.redraw) layer.redraw()
+            })
+          })
+        })
+
+        // Restore previous transform after a short delay.
+        setTimeout(() => {
+          if (cancelled) return
+          container.style.transform = prevTransform
+        }, 250)
+
+        return
+      }
+
+      setTimeout(tick, 100)
+    }
+
+    const startT = setTimeout(tick, 250)
+    const dprInterval = setInterval(() => {
+      if (cancelled) return
+      const dpr = window.devicePixelRatio
+      if (dpr !== lastDpr) {
+        lastDpr = dpr
+        map.invalidateSize(true)
+        map.eachLayer(layer => {
+          if (layer?.redraw) layer.redraw()
+        })
+      }
+    }, 500)
+
+    return () => {
+      cancelled = true
+      clearTimeout(startT)
+      clearInterval(dprInterval)
+    }
+  }, [map])
+
   return null
 }
 
@@ -400,20 +500,28 @@ function IndiaMap({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution="OpenStreetMap"
                 detectRetina={false}
+                keepBuffer={4}
+                updateWhenIdle={false}
+                updateWhenZooming={false}
                 maxZoom={19}
                 minZoom={3}
                 tileSize={256}
                 zoomOffset={0}
+                crossOrigin={true}
               />
             ) : (
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
                 attribution="CartoDB"
                 detectRetina={false}
+                keepBuffer={4}
+                updateWhenIdle={false}
+                updateWhenZooming={false}
                 maxZoom={19}
                 minZoom={3}
                 tileSize={256}
                 zoomOffset={0}
+                crossOrigin={true}
                 eventHandlers={{
                   tileerror: () => {
                     console.log('CartoDB tiles failed, switching to OSM')
@@ -422,6 +530,8 @@ function IndiaMap({
                 }}
               />
             )}
+
+            <TilesPaintFix />
 
             {cities.map((city) => {
               if (showClusters && clusterMap[city.name]) {
