@@ -273,16 +273,24 @@ export default function Navbar({
 
       {/* ── Mobile search (right of hamburger, mobile only, home page only) ── */}
       {location.pathname === '/' && <div className="nb-mobile-search">
-        <form className="nb-mobile-search-box" action="" onSubmit={e => {
+        <form className="nb-mobile-search-box" action="" onSubmit={async e => {
           e.preventDefault()
           const q = searchQuery.trim()
-          if (q) {
-            const match = filteredCities[0]
-            const cityName = match ? match.name : q
-            onCityChange(cityName)
-            setSearchQuery('')
-            setShowDropdown(false)
-            navigate(`/city/${encodeURIComponent(cityName)}`)
+          if (!q) return
+          const match = filteredCities[0]
+          setSearchQuery('')
+          setShowDropdown(false)
+          if (match) {
+            // Known city — just navigate
+            onCityChange(match.name)
+          } else {
+            // Unknown city — fetch data first, then navigate
+            try {
+              await onAddCustomCity?.({ cityName: q, stateName: '' })
+              navigate(`/city/${encodeURIComponent(q)}`)
+            } catch {
+              navigate(`/city/${encodeURIComponent(q)}`)
+            }
           }
         }}>
           <span className="nb-search-icon">🔍</span>
@@ -308,16 +316,14 @@ export default function Navbar({
                 className="nb-dropdown-item"
                 onTouchEnd={(e) => { 
                   e.preventDefault()
-                  onCityChange(c.name)
                   setSearchQuery('')
                   setShowDropdown(false)
-                  navigate(`/city/${encodeURIComponent(c.name)}`)
+                  onCityChange(c.name)
                 }}
                 onMouseDown={() => { 
-                  onCityChange(c.name)
                   setSearchQuery('')
                   setShowDropdown(false)
-                  navigate(`/city/${encodeURIComponent(c.name)}`)
+                  onCityChange(c.name)
                 }}
               >
                 <span>{c.name}</span>
