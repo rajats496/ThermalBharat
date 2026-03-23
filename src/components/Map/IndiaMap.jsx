@@ -353,25 +353,9 @@ function IndiaMap({
 }) {
   const showNDVI = (mapMode === 'trees' || mapMode === 'combined') && !!selectedCity
 
+
   const [tileError, setTileError] = useState(false)
   const [mapError]  = useState(false)
-
-  // ── JS-computed pixel height — reliable at any browser zoom level ──
-  // CSS calc(100vh) fails at sub-100% zoom on some browsers/machines.
-  // We read actual pixel dimensions from the DOM and set inline style.
-  const [mapHeight, setMapHeight] = useState(window.innerHeight - 56)
-  useEffect(() => {
-    const computeHeight = () => {
-      const navEl = document.querySelector('.nb-root')
-      const navH  = navEl ? navEl.offsetHeight : 56
-      const bnEl  = document.querySelector('.bottom-nav')
-      const bnH   = (bnEl && bnEl.offsetHeight) ? bnEl.offsetHeight : 0
-      setMapHeight(window.innerHeight - navH - bnH)
-    }
-    computeHeight()
-    window.addEventListener('resize', computeHeight)
-    return () => window.removeEventListener('resize', computeHeight)
-  }, [])
 
   // ── DELAYED MOUNT: render wrapper FIRST, mount MapContainer AFTER ──
   const [showMap, setShowMap] = useState(false)
@@ -485,7 +469,7 @@ function IndiaMap({
       ) : (
         <div
           className="map-wrapper"
-          style={{ height: mapHeight, minHeight: 300, width: '100%', position: 'relative' }}
+          style={{ height: '100%', minHeight: 300, width: '100%', position: 'relative' }}
         >
           {!showMap ? (
             <div style={{

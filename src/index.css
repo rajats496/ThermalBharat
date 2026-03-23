@@ -3914,9 +3914,9 @@ html, body, #root {
 
 .map-wrapper {
   position: relative !important;
+  height: 100% !important;
   width: 100% !important;
   overflow: hidden !important;
-  flex: 1 !important;
 }
 
 /*  Fix detail panel overlapping map  */
