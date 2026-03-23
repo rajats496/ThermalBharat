@@ -3864,11 +3864,18 @@ html, body, #root {
 }
 
 /* layout-main on map page keeps overflow:hidden (via inline style) */
-/* But ALL other pages must scroll */
-.layout-main {
+/* But ALL other pages must scroll — EXCEPT the map page (.layout-main--map) */
+.layout-main:not(.layout-main--map) {
   overflow: visible !important;
   overflow-y: auto !important;
   height: auto !important;
+}
+
+/* Map page layout must keep its fixed height so flexbox works */
+.layout-main--map {
+  height: calc(100vh - 56px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
 /* map-section stays overflow hidden (map page only, has inline style) */
@@ -3900,7 +3907,6 @@ html, body, #root {
 
 .map-wrapper {
   position: relative !important;
-  height: calc(100vh - 56px) !important;
   width: 100% !important;
   overflow: hidden !important;
   flex: 1 !important;

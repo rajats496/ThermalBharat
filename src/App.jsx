@@ -307,7 +307,7 @@ function AppInner() {
 
         {/* Main map page */}
         <Route path="/" element={
-          <main className="layout-main" style={{ display: 'flex', height: 'calc(100vh - 56px)', minHeight: 0 }}>
+          <main className="layout-main layout-main--map" style={{ display: 'flex', minHeight: 0 }}>
             {/* Mobile floating filter/sidebar button */}
             <button
               className="mobile-only mobile-sidebar-btn"
