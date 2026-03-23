@@ -6,40 +6,51 @@ import HeatOverlay from './HeatOverlay'
 import NDVIOverlay, { NDVILegend } from './NDVIOverlay'
 import { convexHull } from '../../utils/mlModels'
 
-// ── MapInitializer — aggressive invalidateSize + tile redraw ──
+// ── MapInitializer — dispatch native resize events (simulates DevTools opening) ──
 function MapInitializer() {
   const map = useMap()
   useEffect(() => {
-    const times = [0, 100, 200, 300, 500, 800, 1000, 1500, 2000]
-    const timers = times.map(t =>
-      setTimeout(() => {
-        map.invalidateSize(true)
-        map.eachLayer(layer => {
-          if (layer.redraw) layer.redraw()
+    // Dispatch native resize events — this is EXACTLY what opening DevTools does
+    const fireResize = () => window.dispatchEvent(new Event('resize'))
+
+    // Fire at multiple intervals to cover slow machines
+    const times = [0, 100, 200, 500, 1000, 1500, 2000, 3000]
+    const timers = times.map(t => setTimeout(fireResize, t))
+
+    // Also force a compositor repaint by toggling the container width by 1px
+    // This tricks the GPU into re-compositing the tile layer
+    const container = map.getContainer()
+    if (container) {
+      const nudge = setTimeout(() => {
+        const origWidth = container.style.width
+        container.style.width = 'calc(100% - 1px)'
+        void container.offsetHeight  // force reflow
+        requestAnimationFrame(() => {
+          container.style.width = origWidth || '100%'
+          void container.offsetHeight
+          map.invalidateSize(true)
+          fireResize()
         })
-      }, t)
-    )
+      }, 300)
+      timers.push(nudge)
+    }
 
-    const onLoad = () => map.invalidateSize(true)
-    window.addEventListener('load', onLoad)
-
-    const onScroll = () => map.invalidateSize(true)
-    window.addEventListener('scroll', onScroll, { once: true })
-
+    // Listen for real resize events too
     const onResize = () => map.invalidateSize(true)
     window.addEventListener('resize', onResize)
 
+    // ResizeObserver as backup
     let ro
-    const container = map.getContainer()
     if (container && typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(() => map.invalidateSize(true))
+      ro = new ResizeObserver(() => {
+        map.invalidateSize(true)
+        map.eachLayer(layer => { if (layer?.redraw) layer.redraw() })
+      })
       ro.observe(container)
     }
 
     return () => {
       timers.forEach(clearTimeout)
-      window.removeEventListener('load', onLoad)
-      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
       ro?.disconnect()
     }
