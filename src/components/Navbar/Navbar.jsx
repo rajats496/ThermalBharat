@@ -273,30 +273,30 @@ export default function Navbar({
 
       {/* ── Mobile search (right of hamburger, mobile only, home page only) ── */}
       {location.pathname === '/' && <div className="nb-mobile-search">
-        <div className="nb-mobile-search-box">
+        <form className="nb-mobile-search-box" onSubmit={e => {
+          e.preventDefault()
+          if (searchQuery.trim()) {
+            const match = filteredCities[0]
+            if (match) {
+              onCityChange(match.name)
+              setSearchQuery('')
+              setShowDropdown(false)
+              navigate(`/city/${encodeURIComponent(match.name)}`)
+            }
+          }
+        }}>
           <span className="nb-search-icon">🔍</span>
           <input
             className="nb-mobile-search-input"
-            type="text"
+            type="search"
             placeholder="Search city..."
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setShowDropdown(true) }}
             onFocus={() => setShowDropdown(true)}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 300)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && searchQuery.trim()) {
-                const match = filteredCities[0]
-                if (match) {
-                  onCityChange(match.name)
-                  setSearchQuery('')
-                  setShowDropdown(false)
-                  navigate(`/city/${encodeURIComponent(match.name)}`)
-                }
-              }
-            }}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 400)}
             aria-label="Search city"
           />
-        </div>
+        </form>
         {showDropdown && searchQuery.trim() && (
           <div className="nb-mobile-dropdown">
             {filteredCities.slice(0, 10).map(c => (
@@ -304,6 +304,13 @@ export default function Navbar({
                 key={c.name}
                 type="button"
                 className="nb-dropdown-item"
+                onTouchEnd={(e) => { 
+                  e.preventDefault()
+                  onCityChange(c.name)
+                  setSearchQuery('')
+                  setShowDropdown(false)
+                  navigate(`/city/${encodeURIComponent(c.name)}`)
+                }}
                 onMouseDown={() => { 
                   onCityChange(c.name)
                   setSearchQuery('')
