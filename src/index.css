@@ -4107,6 +4107,25 @@ html, body, #root {
 /*  MOBILE OVERRIDES (max-width: 768px)  */
 @media (max-width: 768px) {
 
+  /* Compact navbar on mobile */
+  .nb-root {
+    gap: 8px !important;
+    padding: 0 10px !important;
+    height: 56px !important;
+  }
+
+  /* Hide brand text, keep only logo */
+  .nb-title, .nb-tagline {
+    display: none !important;
+  }
+  .nb-brand {
+    flex-shrink: 0 !important;
+    gap: 0 !important;
+  }
+  .nb-logo {
+    font-size: 22px !important;
+  }
+
   /* Show bottom nav */
   .bottom-nav {
     display: flex !important;
@@ -4115,11 +4134,28 @@ html, body, #root {
   /* Show hamburger button */
   .nb-hamburger-btn {
     display: flex !important;
+    padding: 6px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
   }
 
-  /* Show mobile search */
+  /* Show mobile search — fills remaining space */
   .nb-mobile-search {
     display: block !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  .nb-mobile-search-box {
+    height: 40px !important;
+  }
+  .nb-mobile-search-input {
+    font-size: 15px !important;
+    min-height: 38px !important;
+  }
+  .nb-mobile-search-go {
+    width: 40px !important;
+    height: 32px !important;
+    font-size: 18px !important;
   }
 
   /* Hide desktop nav links in navbar */
