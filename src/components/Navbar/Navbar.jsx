@@ -293,7 +293,12 @@ export default function Navbar({
                 key={c.name}
                 type="button"
                 className="nb-dropdown-item"
-                onMouseDown={() => { handleCitySelect(c.name); navigate(`/city/${encodeURIComponent(c.name)}`) }}
+                onMouseDown={() => { 
+                  onCityChange(c.name)
+                  setSearchQuery('')
+                  setShowDropdown(false)
+                  navigate(`/city/${encodeURIComponent(c.name)}`)
+                }}
               >
                 <span>{c.name}</span>
                 <span className="hindi-text" style={{ fontSize: 11, opacity: 0.7 }}>{c.nameHindi}</span>
