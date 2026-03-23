@@ -3846,13 +3846,20 @@ p, h1, h2, h3, span, div {
    + force map visible on main page
     */
 
-/* App shell should NOT block scroll */
-.app-shell {
+/* App shell should NOT block scroll — EXCEPT on the map page */
+.app-shell:not(:has(.layout-main--map)) {
   overflow: visible !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   height: auto !important;
   min-height: 100vh;
+}
+
+/* Map page: app-shell must keep fixed height so flex chain works */
+.app-shell:has(.layout-main--map) {
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
 }
 
 /* Body + root must allow scroll */
