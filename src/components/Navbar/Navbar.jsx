@@ -270,6 +270,41 @@ export default function Navbar({
           transform: menuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none',
         }} />
       </button>
+
+      {/* ── Mobile search (right of hamburger, mobile only) ── */}
+      <div className="nb-mobile-search">
+        <div className="nb-mobile-search-box">
+          <span className="nb-search-icon">🔍</span>
+          <input
+            className="nb-mobile-search-input"
+            type="text"
+            placeholder="Search city..."
+            value={searchQuery}
+            onChange={e => { setSearchQuery(e.target.value); setShowDropdown(true) }}
+            onFocus={() => setShowDropdown(true)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+            aria-label="Search city"
+          />
+        </div>
+        {showDropdown && searchQuery.trim() && (
+          <div className="nb-mobile-dropdown">
+            {filteredCities.slice(0, 10).map(c => (
+              <button
+                key={c.name}
+                type="button"
+                className="nb-dropdown-item"
+                onMouseDown={() => handleCitySelect(c.name)}
+              >
+                <span>{c.name}</span>
+                <span className="hindi-text" style={{ fontSize: 11, opacity: 0.7 }}>{c.nameHindi}</span>
+              </button>
+            ))}
+            {filteredCities.length === 0 && (
+              <div className="nb-dropdown-empty">No city found</div>
+            )}
+          </div>
+        )}
+      </div>
     </header>
 
     {/* ── Mobile overlay — OUTSIDE header so it's not clipped ── */}
