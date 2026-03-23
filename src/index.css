@@ -3841,6 +3841,35 @@ p, h1, h2, h3, span, div {
   height: 256px !important;
 }
 
+/* Force GPU repaint + tile painting */
+.leaflet-container {
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Force tile painting */
+.leaflet-tile {
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Force tile container paint */
+.leaflet-tile-container {
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Map pane GPU acceleration */
+.leaflet-map-pane {
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
 /* 
    SCROLL FIX — remove overflow:hidden from non-map pages
    + force map visible on main page
