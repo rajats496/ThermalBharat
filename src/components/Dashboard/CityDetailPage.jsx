@@ -274,6 +274,19 @@ export default function CityDetailPage({ cities, cityDetailsData, cityWeatherDat
   const city   = cities?.find(c => c.name === cityName) || null
   const detailData = cityDetailsData?.[cityName] || cityWeatherData?.[cityName] || null
 
+  // Wait for data to arrive (handles race condition with addCustomCity)
+  const [waitingForData, setWaitingForData] = useState(true)
+  useEffect(() => {
+    setWaitingForData(true)
+    const timer = setTimeout(() => setWaitingForData(false), 5000)
+    return () => clearTimeout(timer)
+  }, [cityName])
+
+  // Stop waiting as soon as data arrives
+  useEffect(() => {
+    if (city && detailData) setWaitingForData(false)
+  }, [city, detailData])
+
   const current   = detailData?.current
   const air       = detailData?.airQuality
   const forecast  = detailData?.forecast  || []
@@ -297,11 +310,21 @@ export default function CityDetailPage({ cities, cityDetailsData, cityWeatherDat
 
   const cigarettes = Math.round((air?.aqi_value ?? 0) / 22)
 
+  // Show loading skeleton while waiting for data
   if (!city || !detailData) {
+    if (waitingForData) {
+      return (
+        <div className="cdp-root" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 }}>
+          <div style={{ width: 48, height: 48, border: '4px solid rgba(255,68,68,0.3)', borderTop: '4px solid #ff4444', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <h2 style={{ color: '#fff', margin: 0 }}>{decodeURIComponent(cityName)}</h2>
+          <p style={{ color: '#8895b0', margin: 0 }}>Loading city data... · डेटा लोड हो रहा है...</p>
+        </div>
+      )
+    }
     return (
       <div className="cdp-root" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 }}>
         <span style={{ fontSize: 64 }}>🏙️</span>
-        <h2 style={{ color: '#fff', margin: 0 }}>{cityName}</h2>
+        <h2 style={{ color: '#fff', margin: 0 }}>{decodeURIComponent(cityName)}</h2>
         <p style={{ color: '#8895b0', margin: 0, textAlign: 'center', maxWidth: 400 }}>
           This city is not available in our database yet. We currently cover 30 major Indian cities.
           <br /><span className="hindi-text">यह शहर अभी हमारे डेटाबेस में उपलब्ध नहीं है।</span>
