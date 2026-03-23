@@ -282,7 +282,18 @@ export default function Navbar({
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setShowDropdown(true) }}
             onFocus={() => setShowDropdown(true)}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 300)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                const match = filteredCities[0]
+                if (match) {
+                  onCityChange(match.name)
+                  setSearchQuery('')
+                  setShowDropdown(false)
+                  navigate(`/city/${encodeURIComponent(match.name)}`)
+                }
+              }
+            }}
             aria-label="Search city"
           />
         </div>
