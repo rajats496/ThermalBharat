@@ -357,16 +357,6 @@ function IndiaMap({
   const [tileError, setTileError] = useState(false)
   const [mapError]  = useState(false)
 
-  // ── DELAYED MOUNT: render wrapper FIRST, mount MapContainer AFTER ──
-  const [showMap, setShowMap] = useState(false)
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      const t = setTimeout(() => setShowMap(true), 50)
-      return () => clearTimeout(t)
-    })
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
 
   const clusterGroups = []
   if (showClusters && clusterData?.length) {
@@ -469,18 +459,7 @@ function IndiaMap({
       ) : (
         <div
           className="map-wrapper"
-          style={{ height: '100%', minHeight: 300, width: '100%', position: 'relative' }}
         >
-          {!showMap ? (
-            <div style={{
-              height: '100%', width: '100%', display: 'flex',
-              alignItems: 'center', justifyContent: 'center',
-              background: '#080b14', color: '#8895b0',
-            }}>
-              <span className="spinner" style={{ marginRight: 8 }} />
-              Loading map...
-            </div>
-          ) : (
           <MapContainer
             center={[INDIA_CENTER.lat, INDIA_CENTER.lng]}
             zoom={INDIA_ZOOM}
@@ -568,7 +547,6 @@ function IndiaMap({
 
             {!showClusters && showNDVI && <NDVIOverlay city={selectedCity} mode={mapMode} />}
           </MapContainer>
-          )}
         </div>
       )}
     </div>

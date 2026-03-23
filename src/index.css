@@ -3842,50 +3842,31 @@ p, h1, h2, h3, span, div {
 }
 
 /* 
-   SCROLL FIX — remove overflow:hidden from non-map pages
-   + force map visible on main page
+   SCROLL FIX — non-map pages scroll, map page stays fixed-height
+   Uses .app-shell--map-page class (set via JS) instead of :has()
     */
 
-/* App shell should NOT block scroll — EXCEPT on the map page */
-.app-shell:not(:has(.layout-main--map)) {
-  overflow: visible !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: auto !important;
-  min-height: 100vh;
-}
-
-/* Map page: app-shell must keep fixed height so flex chain works */
-.app-shell:has(.layout-main--map) {
-  height: 100vh !important;
-  height: 100dvh !important;
-  overflow: hidden !important;
-}
-
-/* Body + root must allow scroll */
+/* ── DEFAULT: all pages scroll normally ── */
 html, body, #root {
   overflow-x: hidden;
-  overflow-y: auto !important;
-  height: auto !important;
+  overflow-y: auto;
+  height: auto;
   min-height: 100vh;
 }
 
-/* layout-main on map page keeps overflow:hidden (via inline style) */
-/* But ALL other pages must scroll — EXCEPT the map page (.layout-main--map) */
-.layout-main:not(.layout-main--map) {
-  overflow: visible !important;
-  overflow-y: auto !important;
-  height: auto !important;
+.app-shell {
+  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: auto;
+  min-height: 100vh;
 }
 
-/* Map page layout must keep its fixed height so flexbox works */
-.layout-main--map {
-  height: calc(100vh - 56px) !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
+.layout-main {
+  overflow: visible;
+  overflow-y: auto;
+  height: auto;
 }
-
-/* map-section stays overflow hidden (map page only, has inline style) */
 
 /* City detail and other pages MUST scroll */
 .cdp-root, .cp-root, .pp-root, .mp-root,
@@ -3896,27 +3877,73 @@ html, body, #root {
   max-height: none !important;
 }
 
-/*  Leaflet container — only absolute inside main map wrapper */
-.leaflet-container {
+/* ── MAP PAGE OVERRIDES ── */
+/* When .app-shell--map-page is set by JS, lock the viewport */
+.app-shell--map-page {
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+.app-shell--map-page .layout-main--map {
+  display: flex !important;
+  height: calc(100vh - 56px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Sidebar: fixed 300px width, never grow/shrink */
+.app-shell--map-page .sidebar {
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+  flex: 0 0 300px !important;
+}
+
+/* Map section: fill ALL remaining space */
+.app-shell--map-page .map-section {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Map container fills section */
+.app-shell--map-page .map-container {
+  position: absolute !important;
+  inset: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Map wrapper fills container */
+.app-shell--map-page .map-wrapper {
+  position: absolute !important;
+  inset: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Leaflet fills wrapper */
+.app-shell--map-page .leaflet-container {
+  position: absolute !important;
+  inset: 0 !important;
   height: 100% !important;
   width: 100% !important;
   background: #080b14 !important;
 }
 
-/* ONLY the main IndiaMap gets absolute positioning */
-.map-wrapper > .leaflet-container {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-}
-
-.map-wrapper {
+/* Detail panel sits beside map, not inside it */
+.app-shell--map-page .detail-panel,
+.app-shell--map-page .detail-skeleton {
+  flex: 0 0 390px !important;
   position: relative !important;
+  z-index: 10 !important;
   height: 100% !important;
-  width: 100% !important;
-  overflow: hidden !important;
+  overflow-y: auto !important;
 }
 
 /*  Fix detail panel overlapping map  */

@@ -267,6 +267,7 @@ function AppInner() {
   }
 
   const location = useLocation()
+  const isMapPage = location.pathname === '/'
 
   // Page transition variants
   const pageVariants = {
@@ -285,7 +286,7 @@ function AppInner() {
   )
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${isMapPage ? ' app-shell--map-page' : ''}`}>
 
       {/* ── Offline detection banner ──────────────── */}
       <OfflineBanner />
